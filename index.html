@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIMBRE Sessions — Écran de salle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1b;
+    --white:#ffffff;
+    --green:#2c4c36;
+    --green-bright:#3f6b4d;
+    --white-70: rgba(255,255,255,0.7);
+    --white-45: rgba(255,255,255,0.45);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    width:100%; height:100%;
+    background:var(--ink);
+    color:var(--white);
+    font-family:'IBM Plex Mono', monospace;
+    overflow:hidden;
+  }
+
+  .screen{
+    position:relative;
+    width:100vw; height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:5vh 6vw;
+  }
+
+  /* texture de fond très discrète */
+  .screen::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(63,107,77,0.30), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% 110%, rgba(63,107,77,0.18), transparent 60%);
+    pointer-events:none;
+  }
+
+  .waves{
+    position:absolute; top:0; left:0; width:100%; height:34vh;
+    opacity:0.28; pointer-events:none;
+  }
+  .waves svg{width:100%; height:100%; display:block;}
+
+  .logo{
+    width:clamp(70px, 6.5vw, 110px);
+    height:clamp(70px, 6.5vw, 110px);
+    border-radius:50%;
+    overflow:hidden;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+    position:relative; z-index:1;
+    margin-bottom:clamp(24px, 3.4vh, 46px);
+  }
+  .logo img{width:100%; height:100%; object-fit:cover; display:block;}
+
+  .eyebrow{
+    position:relative; z-index:1;
+    font-size:clamp(13px, 1.1vw, 18px);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--white-70);
+    margin-bottom:clamp(14px, 1.8vh, 22px);
+  }
+
+  h1{
+    position:relative; z-index:1;
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(40px, 6.4vw, 108px);
+    line-height:1.04;
+    text-align:center;
+    max-width:22ch;
+    color:var(--white);
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--white);
+    position:relative;
+  }
+  h1 em::after{
+    content:"";
+    position:absolute; left:-2%; right:-2%; bottom:6%;
+    height:0.26em;
+    background:var(--green);
+    z-index:-1;
+    opacity:0.75;
+  }
+
+  .sub{
+    position:relative; z-index:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(15px, 1.5vw, 24px);
+    color:var(--white-70);
+    text-align:center;
+    margin-top:clamp(16px, 2.2vh, 28px);
+    letter-spacing:0.01em;
+  }
+  .sub .meta{color:var(--white);}
+
+  .main-row{
+    position:relative; z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(40px, 6vw, 100px);
+    margin-top:clamp(40px, 6vh, 80px);
+    width:100%;
+  }
+
+  .qr-block{
+    display:flex; flex-direction:column; align-items:center;
+    gap:clamp(14px, 2vh, 22px);
+  }
+  .qr-frame{
+    background:var(--white);
+    padding:clamp(14px, 1.6vw, 24px);
+    border-radius:10px;
+    box-shadow:0 30px 70px -25px rgba(0,0,0,0.7);
+    line-height:0;
+  }
+  #qrcode{
+    width:clamp(150px, 15vw, 240px);
+    height:clamp(150px, 15vw, 240px);
+  }
+  #qrcode img, #qrcode canvas{
+    width:100% !important; height:100% !important;
+    display:block;
+  }
+  .qr-caption{
+    font-size:clamp(12px, 1vw, 16px);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--white-70);
+    text-align:center;
+  }
+  .qr-caption strong{
+    display:block;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(16px, 1.4vw, 22px);
+    letter-spacing:0;
+    text-transform:none;
+    color:var(--white);
+    margin-top:4px;
+  }
+
+  footer{
+    position:absolute;
+    bottom:clamp(18px, 3vh, 34px);
+    left:0; right:0;
+    display:flex; justify-content:center; align-items:center;
+    gap:12px;
+    font-size:clamp(11px, 0.9vw, 15px);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--white-45);
+    z-index:1;
+  }
+  footer::before, footer::after{
+    content:"";
+    width:26px; height:1px;
+    background:var(--white-45);
+  }
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <div class="waves" id="waves" aria-hidden="true"></div>
+
+  <div class="logo">
+    <img src="assets/logo-badge.png" alt="TIMBRE Sessions">
+  </div>
+
+  <div class="eyebrow">Enregistrement live </div>
+
+  <h1>Ce soir, vous en <em>faisiez partie.</em></h1>
+
+  <div class="main-row">
+    <div class="qr-block">
+      <div class="qr-frame"><div id="qrcode"></div></div>
+      <div class="qr-caption">Scannez pour précommander<strong>timbresessions.bandcamp.com</strong></div>
+    </div>
+  </div>
+
+  <footer>Sortie de l'enregistrement — <span id="disp-release">à venir</span></footer>
+
+</div>
+
+<script>
+  // ————————————————————————————————————————
+  // À PERSONNALISER pour chaque concert
+  // ————————————————————————————————————————
+  const CONFIG = {
+    releaseText: "demain à midi",
+    // Lien vers la landing page de précommande (à remplacer par l'URL réelle une fois le site en ligne) :
+    qrUrl: "https://guillaume-tmbrxx1.github.io/landing-page/"
+  };
+
+  document.getElementById('disp-release').textContent = CONFIG.releaseText;
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: CONFIG.qrUrl,
+    width: 240,
+    height: 240,
+    colorDark: "#1a1a1b",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  // Vagues décoratives (même geste que sur la landing page)
+  function renderWaves(){
+    const w = 1600, h = 300;
+    const d1 = `M -40 150 C 220 60, 340 260, 520 150 C 680 60, 800 240, 980 140 `
+             + `C 1120 60, 1260 220, 1640 130`;
+    const d2 = `M -40 190 C 220 100, 340 300, 520 190 C 680 100, 800 280, 980 180 `
+             + `C 1120 100, 1260 260, 1640 170`;
+    document.getElementById('waves').innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="${d1}" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.9"/>
+        <path d="${d2}" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
+      </svg>`;
+  }
+  renderWaves();
+</script>
+
+</body>
+</html>
